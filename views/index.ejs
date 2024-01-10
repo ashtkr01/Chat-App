@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat App</title>
+</head>
+<body>
+    <h1>Hello Chat</h1>
+
+    <input id="startchat" type="hidden" data-roomid="<%= id %>" ></input>
+
+    <input type="text" id="username" placeholder="username ..." >
+    <input type="text" id="newmsg" placeholder="message ..." >
+    <button id="btn">Send</button>
+
+    <ul id="msglist">
+        <!-- //List: -->
+        <% for(let i=0; i < chats.length; i++) { %>
+            <li> <%= chats[i].user %> : <%= chats[i].content %></li>
+         <% } %>
+    </ul>
+
+
+    <script src="/socket.io/socket.io.js" ></script>
+    <script>
+        var socket = io();
+
+        let startchat = document.getElementById('startchat');
+
+        let btn = document.getElementById('btn');
+        let username = document.getElementById('username');
+        let inputMsg = document.getElementById('newmsg');
+        let msglist = document.getElementById('msglist');
+
+        socket.emit('join_room', {
+                roomid : startchat.getAttribute('data-roomid')
+        });
+
+        btn.onclick = function exec(){
+            // Syntax : socket.emit(event_name , data_value);
+            socket.emit('msg_send' , {
+                msg: inputMsg.value,
+                usr: username.value,
+                roomid : startchat.getAttribute('data-roomid'),
+            });
+        }
+
+        // startchat.onclick = function exec(){
+            
+        // }
+
+        socket.on('msg_rcvd', (data) => {
+            console.log('Message Received ', data);
+            let limsg = document.createElement('li');
+            limsg.innerText = `${data.usr} : ${data.msg}`;
+            msglist.appendChild(limsg);
+        });
+    </script>
+</body>
+</html>
