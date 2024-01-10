@@ -30,6 +30,9 @@ io.on('connection' , (socket) => {
         //Except the sending client , other client will receive this:
         // socket.broadcast.emit('msg_rcvd' , data);
     });
+    socket.on('typing', (data) => {
+        socket.broadcast.to(data.roomid).emit('someone_typing');
+    });
 });
 
 app.use('/' , express.static(__dirname + '/public'));

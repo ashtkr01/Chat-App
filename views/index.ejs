@@ -9,7 +9,7 @@
     <h1>Hello Chat</h1>
 
     <input id="startchat" type="hidden" data-roomid="<%= id %>" ></input>
-
+    <span id="typing">Typing...</span>
     <input type="text" id="username" placeholder="username ..." >
     <input type="text" id="newmsg" placeholder="message ..." >
     <button id="btn">Send</button>
@@ -26,7 +26,12 @@
     <script>
         var socket = io();
 
+        let typing = false;
+        let typingId = null;
+
         let startchat = document.getElementById('startchat');
+        let spanTyping = document.getElementById('typing');
+        spanTyping.style.display = 'none';
 
         let btn = document.getElementById('btn');
         let username = document.getElementById('username');
@@ -55,6 +60,23 @@
             let limsg = document.createElement('li');
             limsg.innerText = `${data.usr} : ${data.msg}`;
             msglist.appendChild(limsg);
+        });
+
+        socket.on('someone_typing', (data) => {
+            spanTyping.style.display = 'block';
+            clearTimeout(typingId);
+            typingId = setTimeout(() => {
+                    spanTyping.style.display = 'none';
+            }, 1000);
+            
+        });
+
+        inputMsg.addEventListener('keypress', function(e){
+            // typing = true;
+            
+            socket.emit('typing', {
+                roomid : startchat.getAttribute('data-roomid'),
+            });
         });
     </script>
 </body>
